@@ -4,7 +4,7 @@ Bu uygulama, ses dosyalarını yükleyip sınıflandıran ve benzerlik analizi y
 
 ## 🚀 Canlı Demo
 
-Uygulamayı Streamlit Cloud'da kullanabilirsiniz: [Demo Linki]
+Uygulamayı Streamlit Cloud'da kullanabilirsiniz: [Demo Linki](https://github.com/canpasa1940/BenzerlikDenemeV3)
 
 ## 📋 Özellikler
 
@@ -56,7 +56,7 @@ Uygulamayı Streamlit Cloud'da kullanabilirsiniz: [Demo Linki]
 
 ```bash
 # Repository'yi klonlayın
-git clone [repo-url]
+git clone https://github.com/canpasa1940/BenzerlikDenemeV3.git
 cd BenzerlikDenemeV3
 
 # Bağımlılıkları yükleyin
@@ -72,6 +72,6 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 ---
 
-**Geliştirici:** [Adınız]  
+**Geliştirici:** Can Paşa  
 **Son Güncelleme:** 2024  
-**Versiyon:** 3.0 
+**Versiyon:** 3.0
