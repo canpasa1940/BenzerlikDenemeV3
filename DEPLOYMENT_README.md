@@ -18,21 +18,21 @@
 
 ### runtime.txt
 ```
-python-3.11.10
+python-3.10.12
 ```
 
 ### requirements.txt
 ```
-streamlit>=1.28.0
-numpy>=1.21.0,<1.25.0
-pandas>=1.3.0
-plotly>=5.0.0
-matplotlib>=3.5.0
-scikit-learn>=1.0.0
-joblib>=1.1.0
-librosa>=0.9.0
-tensorflow-cpu==2.13.1
-setuptools>=65.0.0
+streamlit>=1.28.0,<1.40.0
+numpy>=1.21.0,<1.24.0
+pandas>=1.3.0,<2.0.0
+plotly>=5.0.0,<6.0.0
+matplotlib>=3.5.0,<4.0.0
+scikit-learn>=1.0.0,<1.4.0
+joblib>=1.1.0,<2.0.0
+librosa>=0.9.0,<1.0.0
+tensorflow-cpu>=2.10.0,<2.13.0
+setuptools>=60.0.0,<70.0.0
 ```
 
 ### packages.txt (değişmedi)
