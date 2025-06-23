@@ -16,30 +16,49 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environments
-venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Environments
+.env
+.venv
 env/
+venv/
 ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Temporary files
-*.tmp
-temp/
+# Streamlit
+.streamlit/secrets.toml
 
-# Logs
-*.log 
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Audio files (optional - remove if you want to track them)
+# *.wav
+# *.mp3
+# *.flac 

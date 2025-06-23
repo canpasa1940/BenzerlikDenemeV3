@@ -1,39 +1,77 @@
-# 🎵 One-Shot Ses Sınıflandırıcı
+# 🎵 Ses Benzerlik Analizi
 
-Bu uygulama, ses dosyalarını sınıflandırmak ve benzerlik analizi yapmak için geliştirilmiş bir web uygulamasıdır.
+Bu uygulama, ses dosyalarını yükleyip sınıflandıran ve benzerlik analizi yapabilen bir AI tabanlı ses analiz sistemidir.
 
-## 🌟 Özellikler
+## 🚀 Canlı Demo
 
-- **Ses Sınıflandırma**: WAV dosyalarını 7 farklı kategoriye ayırır (Bass, Clap, Cymbal, Hat, Kick, Rims, Snare)
-- **Toplu İşlem**: Birden fazla ses dosyasını aynı anda işler
-- **Benzerlik Analizi**: Yüklenen sesler arasında benzerlik karşılaştırması yapar
-- **Görselleştirme**: Dalga formları, güven skorları ve benzerlik haritaları
-- **Gerçek Zamanlı**: Anında sonuç verir
+Uygulamayı Streamlit Cloud'da kullanabilirsiniz: [Demo Linki]
 
-## 🎯 Nasıl Kullanılır
+## 📋 Özellikler
 
-1. **Ses Dosyası Yükle**: Sol panelden WAV dosyalarınızı seçin
-2. **Sınıflandır**: Otomatik olarak ses sınıflandırması yapılır
-3. **Sonuçları İncele**: Sağ panelde sonuçları ve grafikleri görün
-4. **Benzerlik Analizi**: Birden fazla ses yükleyerek karşılaştırma yapın
+- **Ses Sınıflandırma**: 7 farklı perküsyon sesi (Bass, Clap, Cymbal, Hat, Kick, Rims, Snare)
+- **Benzerlik Analizi**: Yüklenen sesler arasında benzerlik karşılaştırması
+- **Toplu İşleme**: Birden fazla dosyayı aynı anda yükleme ve analiz
+- **Görselleştirme**: PCA analizi, sınıf dağılımı ve dalga formu görselleri
+- **Ses Çalar**: Yüklenen dosyaları doğrudan dinleme
 
-## 📊 Desteklenen Ses Türleri
+## 🎯 Desteklenen Ses Sınıfları
 
-- **Bass**: Bas davul sesleri
-- **Clap**: El çırpma sesleri
-- **Cymbal**: Zil sesleri
-- **Hat**: Hi-hat sesleri
-- **Kick**: Kick davul sesleri
-- **Rims**: Rim shot sesleri
-- **Snare**: Snare davul sesleri
+1. **Bass** - Bas davul sesleri
+2. **Clap** - El çırpma/clap sesleri
+3. **Cymbal** - Zil sesleri
+4. **Hat** - Hi-hat sesleri
+5. **Kick** - Kick davul sesleri
+6. **Rims** - Rim shot sesleri
+7. **Snare** - Snare davul sesleri
 
 ## 🔧 Teknik Detaylar
 
 - **Model**: TensorFlow/Keras tabanlı derin öğrenme modeli
-- **Özellik Çıkarımı**: MFCC, RMS, ZCR, spektral özellikler
-- **Benzerlik Metriği**: Cosine similarity ve Euclidean distance
-- **Framework**: Streamlit web framework
+- **Özellik Çıkarma**: MFCC, RMS, ZCR, Spektral özellikler
+- **Benzerlik Ölçümü**: Cosine similarity ve Euclidean distance
+- **Görselleştirme**: PCA ile 2D boyut azaltma
+
+## 📁 Dosya Formatları
+
+- Desteklenen format: **WAV**
+- Maksimum dosya boyutu: 200MB
+- Önerilen örnekleme oranı: 44.1kHz
+
+## 🎵 Kullanım Alanları
+
+- Müzik prodüktörleri için benzer davul sesi bulma
+- Ses tasarımcıları için kütüphane organizasyonu
+- Araştırmacılar için ses özellik analizi
+- Müzisyenler için uyumlu perküsyon keşfi
+
+## 📊 Nasıl Çalışır?
+
+1. **Yükleme**: WAV formatında ses dosyalarınızı yükleyin
+2. **Analiz**: AI modeli ses özelliklerini çıkarır ve sınıflandırır
+3. **Sonuçlar**: Tahmin edilen sınıf ve güven skorunu görün
+4. **Benzerlik**: Diğer yüklenmiş seslerle benzerlik analizi yapın
+5. **Görselleştirme**: PCA ve grafiklerde sonuçları inceleyin
+
+## 🛠️ Local Kurulum
+
+```bash
+# Repository'yi klonlayın
+git clone [repo-url]
+cd BenzerlikDenemeV3
+
+# Bağımlılıkları yükleyin
+pip install -r requirements.txt
+
+# Uygulamayı başlatın
+streamlit run app.py
+```
 
 ## 📝 Lisans
 
-Bu proje eğitim amaçlı geliştirilmiştir. 
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+---
+
+**Geliştirici:** [Adınız]  
+**Son Güncelleme:** 2024  
+**Versiyon:** 3.0 
