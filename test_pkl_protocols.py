@@ -1,144 +1,136 @@
 #!/usr/bin/env python3
 """
-PKL dosyalarını farklı yöntemlerle açmaya çalışır
+Test script for pickle file protocols and TensorFlow model loading
 """
 
-import pickle
-import joblib
+import os
 import sys
 import warnings
 
-def try_open_pickle(filename):
-    """Farklı yöntemlerle pickle dosyasını açmayı dene"""
-    print(f"\n🔍 {filename} dosyasını test ediliyor...")
+def test_tensorflow_model():
+    """Test TensorFlow model loading with different methods"""
+    model_path = "my_enhanced_audio_model.h5"
     
-    methods = [
-        ("joblib.load", lambda f: joblib.load(f)),
-        ("pickle.load (rb)", lambda f: pickle.load(open(f, 'rb'))),
-        ("pickle.load (rb, protocol=2)", lambda f: pickle.load(open(f, 'rb'), encoding='latin1')),
-        ("pickle.load (rb, encoding=bytes)", lambda f: pickle.load(open(f, 'rb'), encoding='bytes')),
-        ("pickle.load (rb, fix_imports=False)", lambda f: pickle.load(open(f, 'rb'), fix_imports=False)),
-    ]
+    if not os.path.exists(model_path):
+        print(f"❌ Model dosyası bulunamadı: {model_path}")
+        return False
+        
+    print(f"🔍 TensorFlow model yükleme testleri...")
+    print(f"📁 Model dosyası: {model_path} ({os.path.getsize(model_path)} bytes)")
     
-    for method_name, method_func in methods:
+    try:
+        import tensorflow as tf
+        print(f"✅ TensorFlow {tf.__version__} yüklendi")
+        
+        # Method 1: Normal load
+        print("\n🔧 Yöntem 1: Normal yükleme")
         try:
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                obj = method_func(filename)
-            print(f"✅ {method_name}: BAŞARILI!")
-            
-            # Obje tipini ve özelliklerini göster
-            print(f"   📊 Tip: {type(obj)}")
-            if hasattr(obj, 'classes_'):
-                print(f"   🏷️ Sınıflar: {list(obj.classes_)}")
-            if hasattr(obj, 'n_features_in_'):
-                print(f"   🔢 Özellik sayısı: {obj.n_features_in_}")
-            if hasattr(obj, 'mean_') and hasattr(obj, 'scale_'):
-                print(f"   📈 Scaler: mean shape={obj.mean_.shape}, scale shape={obj.scale_.shape}")
-            
-            return obj, method_name
-            
+                warnings.filterwarnings("ignore")
+                model = tf.keras.models.load_model(model_path)
+            print("✅ Normal yükleme başarılı")
+            print(f"📊 Model summary: {model.input_shape} -> {model.output_shape}")
+            return True
         except Exception as e:
-            print(f"❌ {method_name}: {e}")
-    
-    return None, None
+            print(f"❌ Normal yükleme hatası: {e}")
+            
+        # Method 2: Load without compilation
+        print("\n🔧 Yöntem 2: Compile=False ile yükleme")
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                model = tf.keras.models.load_model(model_path, compile=False)
+            print("✅ Compile=False yükleme başarılı")
+            print(f"📊 Model summary: {model.input_shape} -> {model.output_shape}")
+            return True
+        except Exception as e:
+            print(f"❌ Compile=False yükleme hatası: {e}")
+            
+        # Method 3: Load with custom objects
+        print("\n🔧 Yöntem 3: Custom objects ile yükleme")
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                model = tf.keras.models.load_model(
+                    model_path, 
+                    custom_objects=None,
+                    compile=False
+                )
+            print("✅ Custom objects yükleme başarılı")
+            print(f"📊 Model summary: {model.input_shape} -> {model.output_shape}")
+            return True
+        except Exception as e:
+            print(f"❌ Custom objects yükleme hatası: {e}")
+            
+        return False
+        
+    except ImportError as e:
+        print(f"❌ TensorFlow import hatası: {e}")
+        return False
 
-def fix_audio_classifier():
-    """Audio classifier'ı bozuk pkl dosyalarıyla çalışacak şekilde düzenle"""
+def test_pickle_files():
+    """Test pickle files with different protocols"""
+    pickle_files = ["scaler.pkl", "label_encoder.pkl"]
     
-    # Scaler'ı test et
-    scaler, scaler_method = try_open_pickle('scaler.pkl')
-    if not scaler:
-        print("❌ Scaler açılamadı!")
-        return False
-    
-    # Label encoder'ı test et
-    label_encoder, encoder_method = try_open_pickle('label_encoder.pkl')
-    if not label_encoder:
-        print("❌ Label encoder açılamadı!")
-        return False
-    
-    print(f"\n🎉 ÇÖZÜM BULUNDU!")
-    print(f"📦 Scaler: {scaler_method}")
-    print(f"📦 Label Encoder: {encoder_method}")
-    
-    # audio_classifier.py'ı güncelle
-    update_code = f'''
-    # OTOMATIK OLUŞTURULAN ÇÖZÜM
-    def load_model_and_preprocessors(self):
-        """Model ve ön işleyicileri yükle - Düzeltilmiş versiyon"""
-        try:
-            # TensorFlow modelini yükle
-            from tensorflow import keras
-            self.model = keras.models.load_model(self.model_path)
-            print(f"✅ Model yüklendi: {{self.model_path}}")
+    for pkl_file in pickle_files:
+        if not os.path.exists(pkl_file):
+            print(f"❌ Pickle dosyası bulunamadı: {pkl_file}")
+            continue
             
-            # Scaler'ı yükle - Çalışan yöntem: {scaler_method}
-            import warnings
+        print(f"\n🔍 {pkl_file} yükleme testleri...")
+        print(f"📁 Dosya boyutu: {os.path.getsize(pkl_file)} bytes")
+        
+        # Method 1: joblib
+        try:
+            import joblib
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                '''
-    
-    if 'joblib' in scaler_method:
-        update_code += 'self.scaler = joblib.load(self.scaler_path)'
-    elif 'latin1' in scaler_method:
-        update_code += '''with open(self.scaler_path, 'rb') as f:
-                    self.scaler = pickle.load(f, encoding='latin1')'''
-    elif 'bytes' in scaler_method:
-        update_code += '''with open(self.scaler_path, 'rb') as f:
-                    self.scaler = pickle.load(f, encoding='bytes')'''
-    elif 'fix_imports=False' in scaler_method:
-        update_code += '''with open(self.scaler_path, 'rb') as f:
-                    self.scaler = pickle.load(f, fix_imports=False)'''
-    else:
-        update_code += '''with open(self.scaler_path, 'rb') as f:
-                    self.scaler = pickle.load(f)'''
-    
-    update_code += f'''
-            print(f"✅ Scaler yüklendi: {{self.scaler_path}}")
-            
-            # Label encoder'ı yükle - Çalışan yöntem: {encoder_method}
-            '''
-    
-    if 'joblib' in encoder_method:
-        update_code += 'self.label_encoder = joblib.load(self.label_encoder_path)'
-    elif 'latin1' in encoder_method:
-        update_code += '''with open(self.label_encoder_path, 'rb') as f:
-                    self.label_encoder = pickle.load(f, encoding='latin1')'''
-    elif 'bytes' in encoder_method:
-        update_code += '''with open(self.label_encoder_path, 'rb') as f:
-                    self.label_encoder = pickle.load(f, encoding='bytes')'''
-    elif 'fix_imports=False' in encoder_method:
-        update_code += '''with open(self.label_encoder_path, 'rb') as f:
-                    self.label_encoder = pickle.load(f, fix_imports=False)'''
-    else:
-        update_code += '''with open(self.label_encoder_path, 'rb') as f:
-                    self.label_encoder = pickle.load(f)'''
-    
-    update_code += '''
-            print(f"✅ Label encoder yüklendi: {self.label_encoder_path}")
-            
-            # Sınıfları al
-            self.classes = self.label_encoder.classes_
-            print(f"📊 Mevcut sınıflar: {list(self.classes)}")
-            
+                obj = joblib.load(pkl_file)
+            print(f"✅ joblib.load başarılı - {type(obj).__name__}")
         except Exception as e:
-            print(f"❌ Model yükleme hatası: {e}")
-            raise
-    '''
-    
-    print("\n📝 DÜZELTME KODU:")
-    print("="*60)
-    print(update_code)
-    print("="*60)
-    
-    return True
+            print(f"❌ joblib.load hatası: {e}")
+            
+        # Method 2: pickle
+        try:
+            import pickle
+            with open(pkl_file, 'rb') as f:
+                obj = pickle.load(f)
+            print(f"✅ pickle.load başarılı - {type(obj).__name__}")
+        except Exception as e:
+            print(f"❌ pickle.load hatası: {e}")
 
 def main():
-    print("🔧 PKL Protokol Test Edici")
-    print("=" * 40)
+    """Ana test fonksiyonu"""
+    print("🧪 Ses Analiz Uygulaması - Model ve Pickle Test Scripti")
+    print("=" * 60)
     
-    fix_audio_classifier()
+    print(f"🐍 Python versiyonu: {sys.version}")
+    print(f"📁 Çalışma dizini: {os.getcwd()}")
+    
+    # TensorFlow model testi
+    print("\n" + "="*60)
+    print("🤖 TENSORFLOW MODEL TESTLERİ")
+    print("="*60)
+    tf_success = test_tensorflow_model()
+    
+    # Pickle dosya testleri
+    print("\n" + "="*60)
+    print("🥒 PICKLE DOSYA TESTLERİ") 
+    print("="*60)
+    test_pickle_files()
+    
+    print("\n" + "="*60)
+    print("📊 TEST SONUÇLARI")
+    print("="*60)
+    
+    if tf_success:
+        print("✅ TensorFlow model yükleme: BAŞARILI")
+    else:
+        print("❌ TensorFlow model yükleme: BAŞARISIZ")
+        print("💡 Çözüm önerileri:")
+        print("   - TensorFlow versiyonunu kontrol edin")
+        print("   - Model dosyası corrupt olabilir")
+        print("   - Farklı TensorFlow versiyonuyla model yeniden kaydedilmeli")
 
 if __name__ == "__main__":
     main() 

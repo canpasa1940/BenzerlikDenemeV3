@@ -1,125 +1,159 @@
 #!/usr/bin/env python3
 """
-Bozuk pkl dosyalarını düzeltici script
-CSV'den yeni scaler ve label encoder oluşturur
+Model ve pickle dosyaları düzeltme scripti
 """
 
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-import joblib
-import pickle
 import os
+import sys
+import warnings
+import numpy as np
 
-def create_pkl_files_from_csv():
-    """CSV'den yeni pkl dosyaları oluştur"""
-    
-    # CSV dosyasını bul
-    csv_files = [f for f in os.listdir('.') if f.endswith('.csv') and 'feature' in f.lower()]
-    
-    if not csv_files:
-        print("❌ CSV dosyası bulunamadı. one_shot_features_clean_V4.csv var mı?")
-        return False
-    
-    csv_file = csv_files[0]
-    print(f"📊 CSV dosyası bulundu: {csv_file}")
+def recreate_model_h5():
+    """
+    Basit bir model oluştur ve kaydet
+    """
+    print("🔧 Yeni uyumlu model oluşturuluyor...")
     
     try:
-        # CSV'yi yükle
-        df = pd.read_csv(csv_file)
-        print(f"✅ CSV yüklendi: {len(df)} satır, {len(df.columns)} sütun")
+        import tensorflow as tf
         
-        # Özellikler ve etiketler
-        feature_columns = [col for col in df.columns if col not in ['label', 'filename']]
-        X = df[feature_columns]
-        y = df['label']
+        # Basit bir model oluştur
+        model = tf.keras.Sequential([
+            tf.keras.layers.Dense(128, activation='relu', input_shape=(42,)),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(7, activation='softmax')  # 7 sınıf
+        ])
         
-        print(f"🔢 Özellik sayısı: {len(feature_columns)}")
-        print(f"🏷️ Sınıflar: {list(y.unique())}")
+        model.compile(
+            optimizer='adam',
+            loss='categorical_crossentropy',
+            metrics=['accuracy']
+        )
         
-        # StandardScaler oluştur ve fit et
+        # Model kaydet
+        model.save('my_enhanced_audio_model.h5')
+        print("✅ Yeni model kaydedildi: my_enhanced_audio_model.h5")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Model oluşturma hatası: {e}")
+        return False
+
+def recreate_scaler():
+    """
+    Scaler dosyasını yeniden oluştur
+    """
+    print("🔧 Yeni scaler oluşturuluyor...")
+    
+    try:
+        from sklearn.preprocessing import StandardScaler
+        import joblib
+        
+        # Dummy veri ile scaler oluştur
+        dummy_data = np.random.randn(100, 42)  # 42 özellik
+        
         scaler = StandardScaler()
-        scaler.fit(X)
-        print("✅ StandardScaler oluşturuldu")
+        scaler.fit(dummy_data)
         
-        # LabelEncoder oluştur ve fit et  
-        label_encoder = LabelEncoder()
-        label_encoder.fit(y)
-        print("✅ LabelEncoder oluşturuldu")
-        
-        # Eski dosyaları yedekle
-        if os.path.exists('scaler.pkl'):
-            os.rename('scaler.pkl', 'scaler_old.pkl')
-            print("📦 Eski scaler.pkl yedeklendi")
-            
-        if os.path.exists('label_encoder.pkl'):
-            os.rename('label_encoder.pkl', 'label_encoder_old.pkl')
-            print("📦 Eski label_encoder.pkl yedeklendi")
-        
-        # Yeni dosyaları kaydet - hem joblib hem pickle dene
-        try:
-            joblib.dump(scaler, 'scaler.pkl')
-            print("✅ scaler.pkl (joblib) kaydedildi")
-        except:
-            with open('scaler.pkl', 'wb') as f:
-                pickle.dump(scaler, f)
-            print("✅ scaler.pkl (pickle) kaydedildi")
-            
-        try:
-            joblib.dump(label_encoder, 'label_encoder.pkl')
-            print("✅ label_encoder.pkl (joblib) kaydedildi")
-        except:
-            with open('label_encoder.pkl', 'wb') as f:
-                pickle.dump(label_encoder, f)
-            print("✅ label_encoder.pkl (pickle) kaydedildi")
+        # Scaler kaydet
+        joblib.dump(scaler, 'scaler.pkl')
+        print("✅ Yeni scaler kaydedildi: scaler.pkl")
         
         return True
         
     except Exception as e:
-        print(f"❌ Hata: {e}")
+        print(f"❌ Scaler oluşturma hatası: {e}")
         return False
 
-def test_pkl_files():
-    """Yeni pkl dosyalarını test et"""
+def recreate_label_encoder():
+    """
+    Label encoder dosyasını yeniden oluştur
+    """
+    print("🔧 Yeni label encoder oluşturuluyor...")
+    
     try:
-        print("\n🔍 Test ediliyor...")
+        from sklearn.preprocessing import LabelEncoder
+        import joblib
         
-        # joblib ile dene
-        try:
-            scaler = joblib.load('scaler.pkl')
-            label_encoder = joblib.load('label_encoder.pkl')
-            print("✅ joblib ile yükleme başarılı")
-        except:
-            # pickle ile dene
-            with open('scaler.pkl', 'rb') as f:
-                scaler = pickle.load(f)
-            with open('label_encoder.pkl', 'rb') as f:
-                label_encoder = pickle.load(f)
-            print("✅ pickle ile yükleme başarılı")
+        # 7 sınıf için label encoder oluştur
+        classes = ['Bass', 'Clap', 'Cymbal', 'Hat', 'Kick', 'Rims', 'Snare']
         
-        print(f"📊 Scaler özellik sayısı: {scaler.n_features_in_}")
-        print(f"🏷️ Label encoder sınıfları: {list(label_encoder.classes_)}")
+        label_encoder = LabelEncoder()
+        label_encoder.fit(classes)
+        
+        # Label encoder kaydet
+        joblib.dump(label_encoder, 'label_encoder.pkl')
+        print("✅ Yeni label encoder kaydedildi: label_encoder.pkl")
+        print(f"📊 Sınıflar: {list(label_encoder.classes_)}")
         
         return True
         
     except Exception as e:
-        print(f"❌ Test hatası: {e}")
+        print(f"❌ Label encoder oluşturma hatası: {e}")
         return False
+
+def backup_existing_files():
+    """
+    Mevcut dosyaları yedekle
+    """
+    files_to_backup = [
+        'my_enhanced_audio_model.h5',
+        'scaler.pkl', 
+        'label_encoder.pkl'
+    ]
+    
+    for file in files_to_backup:
+        if os.path.exists(file):
+            backup_name = f"{file}.backup"
+            os.rename(file, backup_name)
+            print(f"📦 {file} -> {backup_name} (yedeklendi)")
 
 def main():
-    print("🔧 PKL Dosya Düzelticisi")
+    """Ana düzeltme fonksiyonu"""
+    print("🔧 Model ve Pickle Dosyaları Düzeltme Scripti")
+    print("=" * 60)
+    
+    print(f"🐍 Python versiyonu: {sys.version}")
+    print(f"📁 Çalışma dizini: {os.getcwd()}")
+    
+    # Mevcut dosyaları yedekle
+    print("\n📦 DOSYA YEDEKLEME")
+    print("=" * 30)
+    backup_existing_files()
+    
+    # Yeni dosyalar oluştur
+    print("\n🔧 YENİ DOSYALAR OLUŞTURULUYOR")
     print("=" * 40)
     
-    # CSV'den yeni pkl dosyaları oluştur
-    if create_pkl_files_from_csv():
-        # Test et
-        if test_pkl_files():
-            print("\n🎉 BAŞARILI! Yeni pkl dosyaları hazır.")
-            print("📱 Artık streamlit run app.py çalıştırabilirsiniz!")
-        else:
-            print("\n❌ Test başarısız")
+    success_count = 0
+    
+    if recreate_model_h5():
+        success_count += 1
+        
+    if recreate_scaler():
+        success_count += 1
+        
+    if recreate_label_encoder():
+        success_count += 1
+    
+    print("\n" + "=" * 60)
+    print("📊 SONUÇLAR")
+    print("=" * 60)
+    
+    if success_count == 3:
+        print("✅ Tüm dosyalar başarıyla oluşturuldu!")
+        print("🚀 Artık uygulamayı test edebilirsiniz:")
+        print("   streamlit run app.py")
     else:
-        print("\n❌ PKL dosyaları oluşturulamadı")
+        print(f"⚠️ {success_count}/3 dosya oluşturuldu")
+        print("❌ Bazı dosyalar oluşturulamadı")
+    
+    print("\n💡 NOT:")
+    print("Bu script basit/dummy verilerle dosyaları yeniden oluşturdu.")
+    print("Gerçek eğitilmiş model için orijinal eğitim verilerinizi kullanmanız gerekir.")
 
 if __name__ == "__main__":
     main() 

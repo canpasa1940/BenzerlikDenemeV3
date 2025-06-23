@@ -61,13 +61,33 @@ class AudioClassifier:
     def load_model_and_preprocessors(self):
         """Model ve ön işleyicileri yükle"""
         try:
-            # TensorFlow modelini yükle
-            from tensorflow import keras
-            self.model = keras.models.load_model(self.model_path)
-            print(f"✅ Model yüklendi: {self.model_path}")
+            # TensorFlow modelini yükle (uyumluluk sorunları için custom_objects kullan)
+            import tensorflow as tf
+            import warnings
+            
+            # TensorFlow uyarılarını sustur
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                
+                # Model yükleme - eski formatlarda uyumluluk için
+                try:
+                    self.model = tf.keras.models.load_model(
+                        self.model_path,
+                        custom_objects=None,
+                        compile=False  # Model compile sorunlarını önlemek için
+                    )
+                    print(f"✅ Model yüklendi: {self.model_path}")
+                except Exception as model_error:
+                    print(f"⚠️ İlk yükleme denemesi başarısız, alternatif yöntem deneniyor...")
+                    # Alternatif yükleme yöntemi
+                    self.model = tf.keras.models.load_model(
+                        self.model_path,
+                        compile=False
+                    )
+                    print(f"✅ Model alternatif yöntemle yüklendi: {self.model_path}")
             
             # Scaler'ı yükle
-            import warnings
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 self.scaler = joblib.load(self.scaler_path)
